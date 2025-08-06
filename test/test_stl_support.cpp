@@ -974,4 +974,806 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(test_func_1_fourth_derivative, T, all_float_types)
     }
 }
 
+template<typename T>
+T test_function_2(const T& x, const T& y)
+{
+    /** @brief test function for
+     *  sin
+     *  cos
+     *  tan
+     */
+    auto y1 = sin(x) * cos(y);
+    auto y2 = tan(x * y);
+    return y1 + y2;
+}
+
+template<typename T>
+std::vector<T> grad_test_func_2_analytical(T x, T y)
+{
+    T f_x = static_cast<T>(y / pow(cos(x * y), 2) + cos(x) * cos(y));
+    T f_y = static_cast<T>(x / pow(cos(x * y), 2) - sin(x) * sin(y));
+    return {f_x, f_y};
+}
+
+template<typename T>
+std::vector<std::vector<T>> grad2_test_func_2_analytical(T x, T y)
+{
+    T f_xx = static_cast<T>(2 * pow(y, 2) * tan(x * y) / pow(cos(x * y), 2) - sin(x) * cos(y));
+    T f_xy = static_cast<T>(2 * x * y * tan(x * y) / pow(cos(x * y), 2) - sin(y) * cos(x)
+                            + pow(tan(x * y), 2) + 1);
+    T f_yx = static_cast<T>(2 * x * y * tan(x * y) / pow(cos(x * y), 2) - sin(y) * cos(x)
+                            + pow(tan(x * y), 2) + 1);
+    T f_yy = static_cast<T>(2 * pow(x, 2) * tan(x * y) / pow(cos(x * y), 2) - sin(x) * cos(y));
+    return {{f_xx, f_xy}, {f_yx, f_yy}};
+}
+
+template<typename T>
+std::vector<std::vector<std::vector<T>>> grad3_test_func_2_analytical(T x, T y)
+{
+    T f_xxx = static_cast<T>(6 * pow(y, 3) * pow(tan(x * y), 4) + 8 * pow(y, 3) * pow(tan(x * y), 2)
+                             + 2 * pow(y, 3) - cos(x) * cos(y));
+    T f_xxy = static_cast<T>(6 * x * pow(y, 2) * pow(tan(x * y), 4)
+                             + 8 * x * pow(y, 2) * pow(tan(x * y), 2) + 2 * x * pow(y, 2)
+                             + 4 * y * pow(tan(x * y), 3) + 4 * y * tan(x * y) + sin(x) * sin(y));
+    T f_xyx = static_cast<T>(6 * x * pow(y, 2) * pow(tan(x * y), 4)
+                             + 8 * x * pow(y, 2) * pow(tan(x * y), 2) + 2 * x * pow(y, 2)
+                             + 4 * y * pow(tan(x * y), 3) + 4 * y * tan(x * y) + sin(x) * sin(y));
+    T f_xyy = static_cast<T>(6 * pow(x, 2) * y * pow(tan(x * y), 4)
+                             + 8 * pow(x, 2) * y * pow(tan(x * y), 2) + 2 * pow(x, 2) * y
+                             + 4 * x * pow(tan(x * y), 3) + 4 * x * tan(x * y) - cos(x) * cos(y));
+    T f_yxx = static_cast<T>(6 * x * pow(y, 2) * pow(tan(x * y), 4)
+                             + 8 * x * pow(y, 2) * pow(tan(x * y), 2) + 2 * x * pow(y, 2)
+                             + 4 * y * pow(tan(x * y), 3) + 4 * y * tan(x * y) + sin(x) * sin(y));
+    T f_yxy = static_cast<T>(6 * pow(x, 2) * y * pow(tan(x * y), 4)
+                             + 8 * pow(x, 2) * y * pow(tan(x * y), 2) + 2 * pow(x, 2) * y
+                             + 4 * x * pow(tan(x * y), 3) + 4 * x * tan(x * y) - cos(x) * cos(y));
+    T f_yyx = static_cast<T>(6 * pow(x, 2) * y * pow(tan(x * y), 4)
+                             + 8 * pow(x, 2) * y * pow(tan(x * y), 2) + 2 * pow(x, 2) * y
+                             + 4 * x * pow(tan(x * y), 3) + 4 * x * tan(x * y) - cos(x) * cos(y));
+    T f_yyy = static_cast<T>(6 * pow(x, 3) * pow(tan(x * y), 4) + 8 * pow(x, 3) * pow(tan(x * y), 2)
+                             + 2 * pow(x, 3) + sin(x) * sin(y));
+    return {{{f_xxx, f_xxy}, {f_xyx, f_xyy}}, {{f_yxx, f_yxy}, {f_yyx, f_yyy}}};
+}
+
+template<typename T>
+std::vector<std::vector<std::vector<std::vector<T>>>> grad4_test_func_2_analytical(T x, T y)
+{
+    T f_xxxx = static_cast<T>(24 * pow(y, 4) * pow(tan(x * y), 5)
+                              + 40 * pow(y, 4) * pow(tan(x * y), 3) + 16 * pow(y, 4) * tan(x * y)
+                              + sin(x) * cos(y));
+    T f_xxxy = static_cast<T>(
+        24 * x * pow(y, 3) * pow(tan(x * y), 5) + 40 * x * pow(y, 3) * pow(tan(x * y), 3)
+        + 16 * x * pow(y, 3) * tan(x * y) + 18 * pow(y, 2) * pow(tan(x * y), 4)
+        + 24 * pow(y, 2) * pow(tan(x * y), 2) + 6 * pow(y, 2) + sin(y) * cos(x));
+    T f_xxyx = static_cast<T>(
+        24 * x * pow(y, 3) * pow(tan(x * y), 5) + 40 * x * pow(y, 3) * pow(tan(x * y), 3)
+        + 16 * x * pow(y, 3) * tan(x * y) + 18 * pow(y, 2) * pow(tan(x * y), 4)
+        + 24 * pow(y, 2) * pow(tan(x * y), 2) + 6 * pow(y, 2) + sin(y) * cos(x));
+    T f_xxyy = static_cast<T>(
+        24 * pow(x, 2) * pow(y, 2) * pow(tan(x * y), 5)
+        + 40 * pow(x, 2) * pow(y, 2) * pow(tan(x * y), 3) + 16 * pow(x, 2) * pow(y, 2) * tan(x * y)
+        + 24 * x * y * pow(tan(x * y), 4) + 32 * x * y * pow(tan(x * y), 2) + 8 * x * y
+        + sin(x) * cos(y) + 4 * pow(tan(x * y), 3) + 4 * tan(x * y));
+    T f_xyxx = static_cast<T>(
+        24 * x * pow(y, 3) * pow(tan(x * y), 5) + 40 * x * pow(y, 3) * pow(tan(x * y), 3)
+        + 16 * x * pow(y, 3) * tan(x * y) + 18 * pow(y, 2) * pow(tan(x * y), 4)
+        + 24 * pow(y, 2) * pow(tan(x * y), 2) + 6 * pow(y, 2) + sin(y) * cos(x));
+    T f_xyxy = static_cast<T>(
+        24 * pow(x, 2) * pow(y, 2) * pow(tan(x * y), 5)
+        + 40 * pow(x, 2) * pow(y, 2) * pow(tan(x * y), 3) + 16 * pow(x, 2) * pow(y, 2) * tan(x * y)
+        + 24 * x * y * pow(tan(x * y), 4) + 32 * x * y * pow(tan(x * y), 2) + 8 * x * y
+        + sin(x) * cos(y) + 4 * pow(tan(x * y), 3) + 4 * tan(x * y));
+    T f_xyyx = static_cast<T>(
+        24 * pow(x, 2) * pow(y, 2) * pow(tan(x * y), 5)
+        + 40 * pow(x, 2) * pow(y, 2) * pow(tan(x * y), 3) + 16 * pow(x, 2) * pow(y, 2) * tan(x * y)
+        + 24 * x * y * pow(tan(x * y), 4) + 32 * x * y * pow(tan(x * y), 2) + 8 * x * y
+        + sin(x) * cos(y) + 4 * pow(tan(x * y), 3) + 4 * tan(x * y));
+    T f_xyyy = static_cast<T>(
+        24 * pow(x, 3) * y * pow(tan(x * y), 5) + 40 * pow(x, 3) * y * pow(tan(x * y), 3)
+        + 16 * pow(x, 3) * y * tan(x * y) + 18 * pow(x, 2) * pow(tan(x * y), 4)
+        + 24 * pow(x, 2) * pow(tan(x * y), 2) + 6 * pow(x, 2) + sin(y) * cos(x));
+    T f_yxxx = static_cast<T>(
+        24 * x * pow(y, 3) * pow(tan(x * y), 5) + 40 * x * pow(y, 3) * pow(tan(x * y), 3)
+        + 16 * x * pow(y, 3) * tan(x * y) + 18 * pow(y, 2) * pow(tan(x * y), 4)
+        + 24 * pow(y, 2) * pow(tan(x * y), 2) + 6 * pow(y, 2) + sin(y) * cos(x));
+    T f_yxxy = static_cast<T>(
+        24 * pow(x, 2) * pow(y, 2) * pow(tan(x * y), 5)
+        + 40 * pow(x, 2) * pow(y, 2) * pow(tan(x * y), 3) + 16 * pow(x, 2) * pow(y, 2) * tan(x * y)
+        + 24 * x * y * pow(tan(x * y), 4) + 32 * x * y * pow(tan(x * y), 2) + 8 * x * y
+        + sin(x) * cos(y) + 4 * pow(tan(x * y), 3) + 4 * tan(x * y));
+    T f_yxyx = static_cast<T>(
+        24 * pow(x, 2) * pow(y, 2) * pow(tan(x * y), 5)
+        + 40 * pow(x, 2) * pow(y, 2) * pow(tan(x * y), 3) + 16 * pow(x, 2) * pow(y, 2) * tan(x * y)
+        + 24 * x * y * pow(tan(x * y), 4) + 32 * x * y * pow(tan(x * y), 2) + 8 * x * y
+        + sin(x) * cos(y) + 4 * pow(tan(x * y), 3) + 4 * tan(x * y));
+    T f_yxyy = static_cast<T>(
+        24 * pow(x, 3) * y * pow(tan(x * y), 5) + 40 * pow(x, 3) * y * pow(tan(x * y), 3)
+        + 16 * pow(x, 3) * y * tan(x * y) + 18 * pow(x, 2) * pow(tan(x * y), 4)
+        + 24 * pow(x, 2) * pow(tan(x * y), 2) + 6 * pow(x, 2) + sin(y) * cos(x));
+    T f_yyxx = static_cast<T>(
+        24 * pow(x, 2) * pow(y, 2) * pow(tan(x * y), 5)
+        + 40 * pow(x, 2) * pow(y, 2) * pow(tan(x * y), 3) + 16 * pow(x, 2) * pow(y, 2) * tan(x * y)
+        + 24 * x * y * pow(tan(x * y), 4) + 32 * x * y * pow(tan(x * y), 2) + 8 * x * y
+        + sin(x) * cos(y) + 4 * pow(tan(x * y), 3) + 4 * tan(x * y));
+    T f_yyxy = static_cast<T>(
+        24 * pow(x, 3) * y * pow(tan(x * y), 5) + 40 * pow(x, 3) * y * pow(tan(x * y), 3)
+        + 16 * pow(x, 3) * y * tan(x * y) + 18 * pow(x, 2) * pow(tan(x * y), 4)
+        + 24 * pow(x, 2) * pow(tan(x * y), 2) + 6 * pow(x, 2) + sin(y) * cos(x));
+    T f_yyyx = static_cast<T>(
+        24 * pow(x, 3) * y * pow(tan(x * y), 5) + 40 * pow(x, 3) * y * pow(tan(x * y), 3)
+        + 16 * pow(x, 3) * y * tan(x * y) + 18 * pow(x, 2) * pow(tan(x * y), 4)
+        + 24 * pow(x, 2) * pow(tan(x * y), 2) + 6 * pow(x, 2) + sin(y) * cos(x));
+    T f_yyyy = static_cast<T>(24 * pow(x, 4) * pow(tan(x * y), 5)
+                              + 40 * pow(x, 4) * pow(tan(x * y), 3) + 16 * pow(x, 4) * tan(x * y)
+                              + sin(x) * cos(y));
+    return {{{{f_xxxx, f_xxxy}, {f_xxyx, f_xxyy}}, {{f_xyxx, f_xyxy}, {f_xyyx, f_xyyy}}},
+            {{{f_yxxx, f_yxxy}, {f_yxyx, f_yxyy}}, {{f_yyxx, f_yyxy}, {f_yyyx, f_yyyy}}}};
+}
+
+BOOST_AUTO_TEST_CASE_TEMPLATE(test_func_2_first_derivative, T, all_float_types)
+{
+    RandomSample<T> rng{0.0001, 10};
+    T               x                 = rng.next();
+    T               y                 = rng.next();
+
+    rvar<T, 1>      x_ad              = x;
+    rvar<T, 1>      y_ad              = y;
+
+    T               fv                = test_function_2(x, y);
+    rvar<T, 1>      f_ad              = test_function_2(x_ad, y_ad);
+    auto            grad_f_analytical = grad_test_func_2_analytical(x, y);
+    /* intended use case */
+    f_ad.backward();
+    BOOST_REQUIRE_CLOSE(x_ad.adjoint(), grad_f_analytical[0], boost_close_tol<T>());
+    BOOST_REQUIRE_CLOSE(y_ad.adjoint(), grad_f_analytical[1], boost_close_tol<T>());
+
+    gradient_tape<T, 1, BUFFER_SIZE>& tape = get_active_tape<T, 1>();
+    tape.zero_grad();
+
+    /* grad test */
+    auto grad_func_test_grad    = grad(f_ad, &x_ad, &y_ad);
+    /* grad_nd test */
+    auto grad_nd_func_test_grad = grad_nd<1>(f_ad, &x_ad, &y_ad);
+
+    for (int i = 0; i < 2; i++) {
+        BOOST_REQUIRE_CLOSE(grad_func_test_grad[i], grad_f_analytical[i], boost_close_tol<T>());
+        BOOST_REQUIRE_CLOSE(grad_nd_func_test_grad[i], grad_f_analytical[i], boost_close_tol<T>());
+    }
+}
+
+BOOST_AUTO_TEST_CASE_TEMPLATE(test_func_2_second_derivative_and_hessian, T, all_float_types)
+{
+    RandomSample<T>                   rng{0.0001, 10};
+    T                                 x    = rng.next();
+    T                                 y    = rng.next();
+
+    rvar<T, 2>                        x_ad = x;
+    rvar<T, 2>                        y_ad = y;
+
+    T                                 fv   = test_function_2(x, y);
+    rvar<T, 2>                        f_ad = test_function_2(x_ad, y_ad);
+    gradient_tape<T, 2, BUFFER_SIZE>& tape = get_active_tape<T, 2>();
+    tape.zero_grad();
+
+    auto hess_analytical   = grad2_test_func_2_analytical(x, y);
+    auto hess_func_test    = hess(f_ad, &x_ad, &y_ad);
+    auto grad_nd_func_test = grad_nd<2>(f_ad, &x_ad, &y_ad);
+
+    for (int i = 0; i < 2; i++) {
+        for (int j = 0; j < 2; j++) {
+            BOOST_REQUIRE_CLOSE(hess_func_test[i][j], hess_analytical[i][j], boost_close_tol<T>());
+            BOOST_REQUIRE_CLOSE(hess_func_test[i][j], grad_nd_func_test[i][j], boost_close_tol<T>());
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE_TEMPLATE(test_func_2_order_3_der, T, all_float_types)
+{
+    RandomSample<T>                   rng{0.0001, 10};
+    T                                 x    = rng.next();
+    T                                 y    = rng.next();
+
+    rvar<T, 3>                        x_ad = x;
+    rvar<T, 3>                        y_ad = y;
+
+    T                                 fv   = test_function_1(x, y);
+    rvar<T, 3>                        f_ad = test_function_1(x_ad, y_ad);
+    gradient_tape<T, 3, BUFFER_SIZE>& tape = get_active_tape<T, 3>();
+    tape.zero_grad();
+
+    auto                                     df3     = grad3_test_func_1_analytical(x, y);
+    auto                                     grad_ad = grad(f_ad, &x_ad, &y_ad);
+
+    std::vector<std::vector<std::vector<T>>> grad_tensor;
+    for (int i = 0; i < 2; i++) {
+        auto df_hess = hess(*grad_ad[i], &x_ad, &y_ad);
+        grad_tensor.push_back(df_hess);
+    }
+    auto grad_nd_func_test = grad_nd<3>(f_ad, &x_ad, &y_ad);
+    for (int i = 0; i < 2; i++) {
+        for (int j = 0; j < 2; j++) {
+            for (int k = 0; k < 2; k++) {
+                BOOST_REQUIRE_CLOSE(grad_tensor[i][j][k], df3[i][j][k], boost_close_tol<T>());
+                BOOST_REQUIRE_CLOSE(grad_nd_func_test[i][j][k], df3[i][j][k], boost_close_tol<T>());
+            }
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE_TEMPLATE(test_func_2_fourth_derivative, T, all_float_types)
+{
+    RandomSample<T> rng{0.0001, 10};
+
+    T               x_val = rng.next();
+    T               y_val = rng.next();
+
+    rvar<T, 4>      x_ad  = x_val;
+    rvar<T, 4>      y_ad  = y_val;
+    rvar<T, 4>      f_ad  = test_function_2(x_ad, y_ad);
+
+    auto            df4   = grad4_test_func_2_analytical(x_val, y_val);
+    auto            gf    = grad(f_ad, &x_ad, &y_ad);
+    std::array<std::array<std::array<std::array<T, 2>, 2>, 2>, 2> ggggf;
+    for (int i = 0; i < 2; ++i) {
+        auto hess1 = grad(*gf[i], &x_ad, &y_ad);
+        for (int j = 0; j < 2; ++j) {
+            auto hess2 = grad(*hess1[j], &x_ad, &y_ad);
+            for (int k = 0; k < 2; ++k) {
+                auto hess3 = grad(*hess2[k], &x_ad, &y_ad);
+                for (int l = 0; l < 2; ++l) {
+                    ggggf[i][j][k][l] = hess3[l];
+                }
+            }
+        }
+    }
+    auto grad_nd_func_test = grad_nd<4>(f_ad, &x_ad, &y_ad);
+    for (int i = 0; i < 2; i++) {
+        for (int j = 0; j < 2; j++) {
+            for (int k = 0; k < 2; k++) {
+                for (int l = 0; l < 2; l++) {
+                    BOOST_REQUIRE_CLOSE(ggggf[i][j][k][l], df4[i][j][k][l], boost_close_tol<T>());
+                    BOOST_REQUIRE_CLOSE(grad_nd_func_test[i][j][k][l],
+                                        df4[i][j][k][l],
+                                        boost_close_tol<T>());
+                }
+            }
+        }
+    }
+}
+
+template<typename T>
+T test_function_3(const T& x, const T& y)
+{
+    /** @brief test function for
+     *  acos
+     *  atan
+     *  asin
+     */
+    auto y1 = acos(x);
+    auto y2 = atan(x / y);
+    auto y3 = asin(y);
+    return y1 + y2 + y3;
+}
+
+template<typename T>
+std::vector<T> grad_test_func_3_analytical(T x, T y)
+{
+    T f_x = static_cast<T>((-pow(x, 2) - pow(y, 2) + y * sqrt(1 - pow(x, 2)))
+                           / (sqrt(1 - pow(x, 2)) * (pow(x, 2) + pow(y, 2))));
+    T f_y = static_cast<T>((pow(x, 2) - x * sqrt(1 - pow(y, 2)) + pow(y, 2))
+                           / (sqrt(1 - pow(y, 2)) * (pow(x, 2) + pow(y, 2))));
+    return {f_x, f_y};
+}
+
+template<typename T>
+std::vector<std::vector<T>> grad2_test_func_3_analytical(T x, T y)
+{
+    T f_xx = static_cast<T>(-2 * x * y / pow(pow(x, 2) + pow(y, 2), 2)
+                            - x / pow(1 - pow(x, 2), 3.0 / 2.0));
+    T f_xy = static_cast<T>((pow(x, 2) - pow(y, 2)) / pow(pow(x, 2) + pow(y, 2), 2));
+    T f_yx = static_cast<T>((pow(x, 2) - pow(y, 2)) / pow(pow(x, 2) + pow(y, 2), 2));
+    T f_yy = static_cast<T>(2 * x * y / pow(pow(x, 2) + pow(y, 2), 2)
+                            + y / pow(1 - pow(y, 2), 3.0 / 2.0));
+    return {{f_xx, f_xy}, {f_yx, f_yy}};
+}
+
+template<typename T>
+std::vector<std::vector<std::vector<T>>> grad3_test_func_3_analytical(T x, T y)
+{
+    T f_xxx = static_cast<T>(6 * pow(x, 2) * y / pow(pow(x, 2) + pow(y, 2), 3)
+                             - 3 * pow(x, 2) / pow(1 - pow(x, 2), 5.0 / 2.0)
+                             - 2 * pow(y, 3) / pow(pow(x, 2) + pow(y, 2), 3)
+                             - 1 / pow(1 - pow(x, 2), 3.0 / 2.0));
+    T f_xxy = static_cast<T>(2 * x * (-pow(x, 2) + 3 * pow(y, 2)) / pow(pow(x, 2) + pow(y, 2), 3));
+    T f_xyx = static_cast<T>(2 * x * (-pow(x, 2) + 3 * pow(y, 2)) / pow(pow(x, 2) + pow(y, 2), 3));
+    T f_xyy = static_cast<T>(
+        2 * y * (-3 * pow(x, 2) + pow(y, 2))
+        / (pow(x, 6) + 3 * pow(x, 4) * pow(y, 2) + 3 * pow(x, 2) * pow(y, 4) + pow(y, 6)));
+    T f_yxx = static_cast<T>(2 * x * (-pow(x, 2) + 3 * pow(y, 2)) / pow(pow(x, 2) + pow(y, 2), 3));
+    T f_yxy = static_cast<T>(
+        2 * y * (-3 * pow(x, 2) + pow(y, 2))
+        / (pow(x, 6) + 3 * pow(x, 4) * pow(y, 2) + 3 * pow(x, 2) * pow(y, 4) + pow(y, 6)));
+    T f_yyx = static_cast<T>(
+        2 * y * (-3 * pow(x, 2) + pow(y, 2))
+        / (pow(x, 6) + 3 * pow(x, 4) * pow(y, 2) + 3 * pow(x, 2) * pow(y, 4) + pow(y, 6)));
+    T f_yyy = static_cast<T>(6 * pow(x, 5) / (pow(y, 2) * pow(pow(x, 2) + pow(y, 2), 3))
+                             + 14 * pow(x, 3) / pow(pow(x, 2) + pow(y, 2), 3)
+                             - 6 * x / (pow(x, 2) * pow(y, 2) + pow(y, 4))
+                             + 3 * pow(y, 2) / pow(1 - pow(y, 2), 5.0 / 2.0)
+                             + pow(1 - pow(y, 2), -3.0 / 2.0));
+    return {{{f_xxx, f_xxy}, {f_xyx, f_xyy}}, {{f_yxx, f_yxy}, {f_yyx, f_yyy}}};
+}
+
+template<typename T>
+std::vector<std::vector<std::vector<std::vector<T>>>> grad4_test_func_3_analytical(T x, T y)
+{
+    T f_xxxx = static_cast<T>(-24 * pow(x, 3) * y / pow(pow(x, 2) + pow(y, 2), 4)
+                              - 15 * pow(x, 3) / pow(1 - pow(x, 2), 7.0 / 2.0)
+                              + 24 * x * pow(y, 3) / pow(pow(x, 2) + pow(y, 2), 4)
+                              - 9 * x / pow(1 - pow(x, 2), 5.0 / 2.0));
+    T f_xxxy = static_cast<T>(-48 * pow(x, 2) * pow(y, 2) / pow(pow(x, 2) + pow(y, 2), 4)
+                              + 6 / pow(pow(x, 2) + pow(y, 2), 2));
+    T f_xxyx = static_cast<T>(-48 * pow(x, 2) * pow(y, 2) / pow(pow(x, 2) + pow(y, 2), 4)
+                              + 6 / pow(pow(x, 2) + pow(y, 2), 2));
+    T f_xxyy = static_cast<T>(
+        24 * x
+        * (-2 * pow(x, 4) + 3 * pow(x, 2) * (pow(x, 2) + pow(y, 2)) - pow(pow(x, 2) + pow(y, 2), 2))
+        / (y * pow(pow(x, 2) + pow(y, 2), 4)));
+    T f_xyxx = static_cast<T>(-48 * pow(x, 2) * pow(y, 2) / pow(pow(x, 2) + pow(y, 2), 4)
+                              + 6 / pow(pow(x, 2) + pow(y, 2), 2));
+    T f_xyxy = static_cast<T>(
+        24 * x
+        * (-2 * pow(x, 4) + 3 * pow(x, 2) * (pow(x, 2) + pow(y, 2)) - pow(pow(x, 2) + pow(y, 2), 2))
+        / (y * pow(pow(x, 2) + pow(y, 2), 4)));
+    T f_xyyx = static_cast<T>(
+        24 * x
+        * (-2 * pow(x, 4) + 3 * pow(x, 2) * (pow(x, 2) + pow(y, 2)) - pow(pow(x, 2) + pow(y, 2), 2))
+        / (y * pow(pow(x, 2) + pow(y, 2), 4)));
+    T f_xyyy = static_cast<T>(6 * (-pow(x, 4) + 6 * pow(x, 2) * pow(y, 2) - pow(y, 4))
+                              / (pow(x, 8) + 4 * pow(x, 6) * pow(y, 2) + 6 * pow(x, 4) * pow(y, 4)
+                                 + 4 * pow(x, 2) * pow(y, 6) + pow(y, 8)));
+    T f_yxxx = static_cast<T>(-48 * pow(x, 2) * pow(y, 2) / pow(pow(x, 2) + pow(y, 2), 4)
+                              + 6 / pow(pow(x, 2) + pow(y, 2), 2));
+    T f_yxxy = static_cast<T>(
+        24 * x
+        * (-2 * pow(x, 4) + 3 * pow(x, 2) * (pow(x, 2) + pow(y, 2)) - pow(pow(x, 2) + pow(y, 2), 2))
+        / (y * pow(pow(x, 2) + pow(y, 2), 4)));
+    T f_yxyx = static_cast<T>(
+        24 * x
+        * (-2 * pow(x, 4) + 3 * pow(x, 2) * (pow(x, 2) + pow(y, 2)) - pow(pow(x, 2) + pow(y, 2), 2))
+        / (y * pow(pow(x, 2) + pow(y, 2), 4)));
+    T f_yxyy = static_cast<T>(6 * (-pow(x, 4) + 6 * pow(x, 2) * pow(y, 2) - pow(y, 4))
+                              / (pow(x, 8) + 4 * pow(x, 6) * pow(y, 2) + 6 * pow(x, 4) * pow(y, 4)
+                                 + 4 * pow(x, 2) * pow(y, 6) + pow(y, 8)));
+    T f_yyxx = static_cast<T>(
+        24 * x
+        * (-2 * pow(x, 4) + 3 * pow(x, 2) * (pow(x, 2) + pow(y, 2)) - pow(pow(x, 2) + pow(y, 2), 2))
+        / (y * pow(pow(x, 2) + pow(y, 2), 4)));
+    T f_yyxy = static_cast<T>(6 * (-pow(x, 4) + 6 * pow(x, 2) * pow(y, 2) - pow(y, 4))
+                              / (pow(x, 8) + 4 * pow(x, 6) * pow(y, 2) + 6 * pow(x, 4) * pow(y, 4)
+                                 + 4 * pow(x, 2) * pow(y, 6) + pow(y, 8)));
+    T f_yyyx = static_cast<T>(6 * (-pow(x, 4) + 6 * pow(x, 2) * pow(y, 2) - pow(y, 4))
+                              / (pow(x, 8) + 4 * pow(x, 6) * pow(y, 2) + 6 * pow(x, 4) * pow(y, 4)
+                                 + 4 * pow(x, 2) * pow(y, 6) + pow(y, 8)));
+    T f_yyyy = static_cast<T>(72 * pow(x, 7) / (pow(y, 3) * pow(pow(x, 2) + pow(y, 2), 4))
+                              + 120 * pow(x, 5) / (y * pow(pow(x, 2) + pow(y, 2), 4))
+                              - 96 * pow(x, 3) / (pow(y, 3) * pow(pow(x, 2) + pow(y, 2), 2))
+                              + 24 * x / (pow(x, 2) * pow(y, 3) + pow(y, 5))
+                              + 15 * pow(y, 3) / pow(1 - pow(y, 2), 7.0 / 2.0)
+                              + 9 * y / pow(1 - pow(y, 2), 5.0 / 2.0));
+    return {{{{f_xxxx, f_xxxy}, {f_xxyx, f_xxyy}}, {{f_xyxx, f_xyxy}, {f_xyyx, f_xyyy}}},
+            {{{f_yxxx, f_yxxy}, {f_yxyx, f_yxyy}}, {{f_yyxx, f_yyxy}, {f_yyyx, f_yyyy}}}};
+}
+
+BOOST_AUTO_TEST_CASE_TEMPLATE(test_func_3_first_derivative, T, all_float_types)
+{
+    RandomSample<T> rng{-1, 1};
+    T               x                 = rng.next();
+    T               y                 = rng.next();
+
+    rvar<T, 1>      x_ad              = x;
+    rvar<T, 1>      y_ad              = y;
+
+    T               fv                = test_function_3(x, y);
+    rvar<T, 1>      f_ad              = test_function_3(x_ad, y_ad);
+    auto            grad_f_analytical = grad_test_func_3_analytical(x, y);
+    /* intended use case */
+    f_ad.backward();
+    BOOST_REQUIRE_CLOSE(x_ad.adjoint(), grad_f_analytical[0], boost_close_tol<T>());
+    BOOST_REQUIRE_CLOSE(y_ad.adjoint(), grad_f_analytical[1], boost_close_tol<T>());
+
+    gradient_tape<T, 1, BUFFER_SIZE>& tape = get_active_tape<T, 1>();
+    tape.zero_grad();
+
+    /* grad test */
+    auto grad_func_test_grad    = grad(f_ad, &x_ad, &y_ad);
+    /* grad_nd test */
+    auto grad_nd_func_test_grad = grad_nd<1>(f_ad, &x_ad, &y_ad);
+
+    for (int i = 0; i < 2; i++) {
+        BOOST_REQUIRE_CLOSE(grad_func_test_grad[i], grad_f_analytical[i], boost_close_tol<T>());
+        BOOST_REQUIRE_CLOSE(grad_nd_func_test_grad[i], grad_f_analytical[i], boost_close_tol<T>());
+    }
+}
+
+BOOST_AUTO_TEST_CASE_TEMPLATE(test_func_3_second_derivative_and_hessian, T, all_float_types)
+{
+    RandomSample<T>                   rng{-1, 1};
+    T                                 x    = rng.next();
+    T                                 y    = rng.next();
+
+    rvar<T, 2>                        x_ad = x;
+    rvar<T, 2>                        y_ad = y;
+
+    T                                 fv   = test_function_3(x, y);
+    rvar<T, 2>                        f_ad = test_function_3(x_ad, y_ad);
+    gradient_tape<T, 2, BUFFER_SIZE>& tape = get_active_tape<T, 2>();
+    tape.zero_grad();
+
+    auto hess_analytical   = grad2_test_func_3_analytical(x, y);
+    auto hess_func_test    = hess(f_ad, &x_ad, &y_ad);
+    auto grad_nd_func_test = grad_nd<2>(f_ad, &x_ad, &y_ad);
+
+    for (int i = 0; i < 2; i++) {
+        for (int j = 0; j < 2; j++) {
+            BOOST_REQUIRE_CLOSE(hess_func_test[i][j], hess_analytical[i][j], boost_close_tol<T>());
+            BOOST_REQUIRE_CLOSE(hess_func_test[i][j], grad_nd_func_test[i][j], boost_close_tol<T>());
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE_TEMPLATE(test_func_3_order_3_der, T, all_float_types)
+{
+    RandomSample<T>                   rng{-1, 1};
+    T                                 x    = rng.next();
+    T                                 y    = rng.next();
+
+    rvar<T, 3>                        x_ad = x;
+    rvar<T, 3>                        y_ad = y;
+
+    T                                 fv   = test_function_3(x, y);
+    rvar<T, 3>                        f_ad = test_function_3(x_ad, y_ad);
+    gradient_tape<T, 3, BUFFER_SIZE>& tape = get_active_tape<T, 3>();
+    tape.zero_grad();
+
+    auto                                     df3     = grad3_test_func_3_analytical(x, y);
+    auto                                     grad_ad = grad(f_ad, &x_ad, &y_ad);
+
+    std::vector<std::vector<std::vector<T>>> grad_tensor;
+    for (int i = 0; i < 2; i++) {
+        auto df_hess = hess(*grad_ad[i], &x_ad, &y_ad);
+        grad_tensor.push_back(df_hess);
+    }
+    auto grad_nd_func_test = grad_nd<3>(f_ad, &x_ad, &y_ad);
+    for (int i = 0; i < 2; i++) {
+        for (int j = 0; j < 2; j++) {
+            for (int k = 0; k < 2; k++) {
+                BOOST_REQUIRE_CLOSE(grad_tensor[i][j][k], df3[i][j][k], boost_close_tol<T>());
+                BOOST_REQUIRE_CLOSE(grad_nd_func_test[i][j][k], df3[i][j][k], boost_close_tol<T>());
+            }
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE_TEMPLATE(test_func_3_fourth_derivative, T, all_float_types)
+{
+    RandomSample<T> rng{-1, 1};
+
+    T               x_val = rng.next();
+    T               y_val = rng.next();
+
+    rvar<T, 4>      x_ad  = x_val;
+    rvar<T, 4>      y_ad  = y_val;
+    rvar<T, 4>      f_ad  = test_function_3(x_ad, y_ad);
+
+    auto            df4   = grad4_test_func_3_analytical(x_val, y_val);
+    auto            gf    = grad(f_ad, &x_ad, &y_ad);
+    std::array<std::array<std::array<std::array<T, 2>, 2>, 2>, 2> ggggf;
+    for (int i = 0; i < 2; ++i) {
+        auto hess1 = grad(*gf[i], &x_ad, &y_ad);
+        for (int j = 0; j < 2; ++j) {
+            auto hess2 = grad(*hess1[j], &x_ad, &y_ad);
+            for (int k = 0; k < 2; ++k) {
+                auto hess3 = grad(*hess2[k], &x_ad, &y_ad);
+                for (int l = 0; l < 2; ++l) {
+                    ggggf[i][j][k][l] = hess3[l];
+                }
+            }
+        }
+    }
+    auto grad_nd_func_test = grad_nd<4>(f_ad, &x_ad, &y_ad);
+    for (int i = 0; i < 2; i++) {
+        for (int j = 0; j < 2; j++) {
+            for (int k = 0; k < 2; k++) {
+                for (int l = 0; l < 2; l++) {
+                    BOOST_REQUIRE_CLOSE(ggggf[i][j][k][l],
+                                        df4[i][j][k][l],
+                                        100 * boost_close_tol<T>());
+                    BOOST_REQUIRE_CLOSE(grad_nd_func_test[i][j][k][l],
+                                        df4[i][j][k][l],
+                                        boost_close_tol<T>());
+                }
+            }
+        }
+    }
+}
+
+template<typename T>
+T test_function_4(const T& x, const T& y)
+{
+    /** @brief test function for
+     *  sinh
+     *  cosh
+     *  tanh
+     *  log10
+     */
+    auto y1 = sinh(x) * cosh(y);
+    auto y2 = tanh(x * y);
+    auto y3 = log10(y);
+    return y1 + y2 + y3;
+}
+
+template<typename T>
+std::vector<T> grad_test_func_4_analytical(T x, T y)
+{
+    T f_x = static_cast<T>(y / pow(cosh(x * y), 2) + cosh(x) * cosh(y));
+    T f_y = static_cast<T>(x / pow(cosh(x * y), 2) + sinh(x) * sinh(y) + 1 / (y * M_LN10));
+    return {f_x, f_y};
+}
+template<typename T>
+std::vector<std::vector<T>> grad2_test_func_4_analytical(T x, T y)
+{
+    T f_xx = static_cast<T>(-2 * pow(y, 2) * sinh(x * y) / pow(cosh(x * y), 3) + sinh(x) * cosh(y));
+    T f_xy = static_cast<T>(-2 * x * y * tanh(x * y) / pow(cosh(x * y), 2) + sinh(y) * cosh(x)
+                            - pow(tanh(x * y), 2) + 1);
+    T f_yx = static_cast<T>(-2 * x * y * tanh(x * y) / pow(cosh(x * y), 2) + sinh(y) * cosh(x)
+                            - pow(tanh(x * y), 2) + 1);
+    T f_yy = static_cast<T>(-2 * pow(x, 2) * sinh(x * y) / pow(cosh(x * y), 3) + sinh(x) * cosh(y)
+                            - 1 / (pow(y, 2) * M_LN10));
+    return {{f_xx, f_xy}, {f_yx, f_yy}};
+}
+
+template<typename T>
+std::vector<std::vector<std::vector<T>>> grad3_test_func_4_analytical(T x, T y)
+{
+    T f_xxx = static_cast<T>(-6 * pow(y, 3) * pow(tanh(x * y), 4)
+                             + 8 * pow(y, 3) * pow(tanh(x * y), 2) - 2 * pow(y, 3)
+                             + cosh(x) * cosh(y));
+    T f_xxy = static_cast<T>(4 * x * pow(y, 2) / pow(cosh(x * y), 2)
+                             - 6 * x * pow(y, 2) / pow(cosh(x * y), 4)
+                             - 4 * y * sinh(x * y) / pow(cosh(x * y), 3) + sinh(x) * sinh(y));
+    T f_xyx = static_cast<T>(4 * x * pow(y, 2) / pow(cosh(x * y), 2)
+                             - 6 * x * pow(y, 2) / pow(cosh(x * y), 4)
+                             - 4 * y * sinh(x * y) / pow(cosh(x * y), 3) + sinh(x) * sinh(y));
+    T f_xyy = static_cast<T>(4 * pow(x, 2) * y / pow(cosh(x * y), 2)
+                             - 6 * pow(x, 2) * y / pow(cosh(x * y), 4)
+                             - 4 * x * sinh(x * y) / pow(cosh(x * y), 3) + cosh(x) * cosh(y));
+    T f_yxx = static_cast<T>(4 * x * pow(y, 2) / pow(cosh(x * y), 2)
+                             - 6 * x * pow(y, 2) / pow(cosh(x * y), 4)
+                             - 4 * y * sinh(x * y) / pow(cosh(x * y), 3) + sinh(x) * sinh(y));
+    T f_yxy = static_cast<T>(4 * pow(x, 2) * y / pow(cosh(x * y), 2)
+                             - 6 * pow(x, 2) * y / pow(cosh(x * y), 4)
+                             - 4 * x * sinh(x * y) / pow(cosh(x * y), 3) + cosh(x) * cosh(y));
+    T f_yyx = static_cast<T>(4 * pow(x, 2) * y / pow(cosh(x * y), 2)
+                             - 6 * pow(x, 2) * y / pow(cosh(x * y), 4)
+                             - 4 * x * sinh(x * y) / pow(cosh(x * y), 3) + cosh(x) * cosh(y));
+    T f_yyy = static_cast<T>(4 * pow(x, 3) * pow(tanh(x * y), 2) / pow(cosh(x * y), 2)
+                             - 2 * pow(x, 3) / pow(cosh(x * y), 4) + sinh(x) * sinh(y)
+                             + 2 / (pow(y, 3) * M_LN10));
+    return {{{f_xxx, f_xxy}, {f_xyx, f_xyy}}, {{f_yxx, f_yxy}, {f_yyx, f_yyy}}};
+}
+template<typename T>
+std::vector<std::vector<std::vector<std::vector<T>>>> grad4_test_func_4_analytical(T x, T y)
+{
+    T f_xxxx = static_cast<T>(24 * pow(y, 4) * pow(tanh(x * y), 5)
+                              - 40 * pow(y, 4) * pow(tanh(x * y), 3) + 16 * pow(y, 4) * tanh(x * y)
+                              + sinh(x) * cosh(y));
+    T f_xxxy = static_cast<T>(
+        24 * x * pow(y, 3) * pow(tanh(x * y), 5) - 40 * x * pow(y, 3) * pow(tanh(x * y), 3)
+        + 16 * x * pow(y, 3) * tanh(x * y) - 18 * pow(y, 2) * pow(tanh(x * y), 4)
+        + 24 * pow(y, 2) * pow(tanh(x * y), 2) - 6 * pow(y, 2) + sinh(y) * cosh(x));
+    T f_xxyx = static_cast<T>(
+        24 * x * pow(y, 3) * pow(tanh(x * y), 5) - 40 * x * pow(y, 3) * pow(tanh(x * y), 3)
+        + 16 * x * pow(y, 3) * tanh(x * y) - 18 * pow(y, 2) * pow(tanh(x * y), 4)
+        + 24 * pow(y, 2) * pow(tanh(x * y), 2) - 6 * pow(y, 2) + sinh(y) * cosh(x));
+    T f_xxyy = static_cast<T>(24 * pow(x, 2) * pow(y, 2) * pow(tanh(x * y), 5)
+                              - 40 * pow(x, 2) * pow(y, 2) * pow(tanh(x * y), 3)
+                              + 16 * pow(x, 2) * pow(y, 2) * tanh(x * y)
+                              - 24 * x * y * pow(tanh(x * y), 4) + 32 * x * y * pow(tanh(x * y), 2)
+                              - 8 * x * y + sinh(x) * cosh(y) + 4 * pow(tanh(x * y), 3)
+                              - 4 * tanh(x * y));
+    T f_xyxx = static_cast<T>(
+        24 * x * pow(y, 3) * pow(tanh(x * y), 5) - 40 * x * pow(y, 3) * pow(tanh(x * y), 3)
+        + 16 * x * pow(y, 3) * tanh(x * y) - 18 * pow(y, 2) * pow(tanh(x * y), 4)
+        + 24 * pow(y, 2) * pow(tanh(x * y), 2) - 6 * pow(y, 2) + sinh(y) * cosh(x));
+    T f_xyxy = static_cast<T>(24 * pow(x, 2) * pow(y, 2) * pow(tanh(x * y), 5)
+                              - 40 * pow(x, 2) * pow(y, 2) * pow(tanh(x * y), 3)
+                              + 16 * pow(x, 2) * pow(y, 2) * tanh(x * y)
+                              - 24 * x * y * pow(tanh(x * y), 4) + 32 * x * y * pow(tanh(x * y), 2)
+                              - 8 * x * y + sinh(x) * cosh(y) + 4 * pow(tanh(x * y), 3)
+                              - 4 * tanh(x * y));
+    T f_xyyx = static_cast<T>(24 * pow(x, 2) * pow(y, 2) * pow(tanh(x * y), 5)
+                              - 40 * pow(x, 2) * pow(y, 2) * pow(tanh(x * y), 3)
+                              + 16 * pow(x, 2) * pow(y, 2) * tanh(x * y)
+                              - 24 * x * y * pow(tanh(x * y), 4) + 32 * x * y * pow(tanh(x * y), 2)
+                              - 8 * x * y + sinh(x) * cosh(y) + 4 * pow(tanh(x * y), 3)
+                              - 4 * tanh(x * y));
+    T f_xyyy = static_cast<T>(
+        24 * pow(x, 3) * y * pow(tanh(x * y), 5) - 40 * pow(x, 3) * y * pow(tanh(x * y), 3)
+        + 16 * pow(x, 3) * y * tanh(x * y) - 18 * pow(x, 2) * pow(tanh(x * y), 4)
+        + 24 * pow(x, 2) * pow(tanh(x * y), 2) - 6 * pow(x, 2) + sinh(y) * cosh(x));
+    T f_yxxx = static_cast<T>(
+        24 * x * pow(y, 3) * pow(tanh(x * y), 5) - 40 * x * pow(y, 3) * pow(tanh(x * y), 3)
+        + 16 * x * pow(y, 3) * tanh(x * y) - 18 * pow(y, 2) * pow(tanh(x * y), 4)
+        + 24 * pow(y, 2) * pow(tanh(x * y), 2) - 6 * pow(y, 2) + sinh(y) * cosh(x));
+    T f_yxxy = static_cast<T>(24 * pow(x, 2) * pow(y, 2) * pow(tanh(x * y), 5)
+                              - 40 * pow(x, 2) * pow(y, 2) * pow(tanh(x * y), 3)
+                              + 16 * pow(x, 2) * pow(y, 2) * tanh(x * y)
+                              - 24 * x * y * pow(tanh(x * y), 4) + 32 * x * y * pow(tanh(x * y), 2)
+                              - 8 * x * y + sinh(x) * cosh(y) + 4 * pow(tanh(x * y), 3)
+                              - 4 * tanh(x * y));
+    T f_yxyx = static_cast<T>(24 * pow(x, 2) * pow(y, 2) * pow(tanh(x * y), 5)
+                              - 40 * pow(x, 2) * pow(y, 2) * pow(tanh(x * y), 3)
+                              + 16 * pow(x, 2) * pow(y, 2) * tanh(x * y)
+                              - 24 * x * y * pow(tanh(x * y), 4) + 32 * x * y * pow(tanh(x * y), 2)
+                              - 8 * x * y + sinh(x) * cosh(y) + 4 * pow(tanh(x * y), 3)
+                              - 4 * tanh(x * y));
+    T f_yxyy = static_cast<T>(
+        24 * pow(x, 3) * y * pow(tanh(x * y), 5) - 40 * pow(x, 3) * y * pow(tanh(x * y), 3)
+        + 16 * pow(x, 3) * y * tanh(x * y) - 18 * pow(x, 2) * pow(tanh(x * y), 4)
+        + 24 * pow(x, 2) * pow(tanh(x * y), 2) - 6 * pow(x, 2) + sinh(y) * cosh(x));
+    T f_yyxx = static_cast<T>(24 * pow(x, 2) * pow(y, 2) * pow(tanh(x * y), 5)
+                              - 40 * pow(x, 2) * pow(y, 2) * pow(tanh(x * y), 3)
+                              + 16 * pow(x, 2) * pow(y, 2) * tanh(x * y)
+                              - 24 * x * y * pow(tanh(x * y), 4) + 32 * x * y * pow(tanh(x * y), 2)
+                              - 8 * x * y + sinh(x) * cosh(y) + 4 * pow(tanh(x * y), 3)
+                              - 4 * tanh(x * y));
+    T f_yyxy = static_cast<T>(
+        24 * pow(x, 3) * y * pow(tanh(x * y), 5) - 40 * pow(x, 3) * y * pow(tanh(x * y), 3)
+        + 16 * pow(x, 3) * y * tanh(x * y) - 18 * pow(x, 2) * pow(tanh(x * y), 4)
+        + 24 * pow(x, 2) * pow(tanh(x * y), 2) - 6 * pow(x, 2) + sinh(y) * cosh(x));
+    T f_yyyx = static_cast<T>(
+        24 * pow(x, 3) * y * pow(tanh(x * y), 5) - 40 * pow(x, 3) * y * pow(tanh(x * y), 3)
+        + 16 * pow(x, 3) * y * tanh(x * y) - 18 * pow(x, 2) * pow(tanh(x * y), 4)
+        + 24 * pow(x, 2) * pow(tanh(x * y), 2) - 6 * pow(x, 2) + sinh(y) * cosh(x));
+    T f_yyyy = static_cast<T>(-8 * pow(x, 4) * sinh(x * y) / pow(cosh(x * y), 3)
+                              + 24 * pow(x, 4) * sinh(x * y) / pow(cosh(x * y), 5)
+                              + sinh(x) * cosh(y) - 6 / (pow(y, 4) * M_LN10));
+    return {{{{f_xxxx, f_xxxy}, {f_xxyx, f_xxyy}}, {{f_xyxx, f_xyxy}, {f_xyyx, f_xyyy}}},
+            {{{f_yxxx, f_yxxy}, {f_yxyx, f_yxyy}}, {{f_yyxx, f_yyxy}, {f_yyyx, f_yyyy}}}};
+}
+
+BOOST_AUTO_TEST_CASE_TEMPLATE(test_func_4_first_derivative, T, all_float_types)
+{
+    RandomSample<T> rng{-1, 1};
+    T               x                 = rng.next();
+    T               y                 = rng.next();
+
+    rvar<T, 1>      x_ad              = x;
+    rvar<T, 1>      y_ad              = y;
+
+    T               fv                = test_function_4(x, y);
+    rvar<T, 1>      f_ad              = test_function_4(x_ad, y_ad);
+    auto            grad_f_analytical = grad_test_func_4_analytical(x, y);
+    /* intended use case */
+    f_ad.backward();
+    BOOST_REQUIRE_CLOSE(x_ad.adjoint(), grad_f_analytical[0], boost_close_tol<T>());
+    BOOST_REQUIRE_CLOSE(y_ad.adjoint(), grad_f_analytical[1], boost_close_tol<T>());
+
+    gradient_tape<T, 1, BUFFER_SIZE>& tape = get_active_tape<T, 1>();
+    tape.zero_grad();
+
+    /* grad test */
+    auto grad_func_test_grad    = grad(f_ad, &x_ad, &y_ad);
+    /* grad_nd test */
+    auto grad_nd_func_test_grad = grad_nd<1>(f_ad, &x_ad, &y_ad);
+
+    for (int i = 0; i < 2; i++) {
+        BOOST_REQUIRE_CLOSE(grad_func_test_grad[i], grad_f_analytical[i], boost_close_tol<T>());
+        BOOST_REQUIRE_CLOSE(grad_nd_func_test_grad[i], grad_f_analytical[i], boost_close_tol<T>());
+    }
+}
+
+BOOST_AUTO_TEST_CASE_TEMPLATE(test_func_4_second_derivative_and_hessian, T, all_float_types)
+{
+    RandomSample<T>                   rng{-1, 1};
+    T                                 x    = rng.next();
+    T                                 y    = rng.next();
+
+    rvar<T, 2>                        x_ad = x;
+    rvar<T, 2>                        y_ad = y;
+
+    T                                 fv   = test_function_4(x, y);
+    rvar<T, 2>                        f_ad = test_function_4(x_ad, y_ad);
+    gradient_tape<T, 2, BUFFER_SIZE>& tape = get_active_tape<T, 2>();
+    tape.zero_grad();
+
+    auto hess_analytical   = grad2_test_func_4_analytical(x, y);
+    auto hess_func_test    = hess(f_ad, &x_ad, &y_ad);
+    auto grad_nd_func_test = grad_nd<2>(f_ad, &x_ad, &y_ad);
+
+    for (int i = 0; i < 2; i++) {
+        for (int j = 0; j < 2; j++) {
+            BOOST_REQUIRE_CLOSE(hess_func_test[i][j], hess_analytical[i][j], boost_close_tol<T>());
+            BOOST_REQUIRE_CLOSE(hess_func_test[i][j], grad_nd_func_test[i][j], boost_close_tol<T>());
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE_TEMPLATE(test_func_4_order_3_der, T, all_float_types)
+{
+    RandomSample<T>                   rng{-1, 1};
+    T                                 x    = rng.next();
+    T                                 y    = rng.next();
+
+    rvar<T, 3>                        x_ad = x;
+    rvar<T, 3>                        y_ad = y;
+
+    T                                 fv   = test_function_4(x, y);
+    rvar<T, 3>                        f_ad = test_function_4(x_ad, y_ad);
+    gradient_tape<T, 3, BUFFER_SIZE>& tape = get_active_tape<T, 3>();
+    tape.zero_grad();
+
+    auto                                     df3     = grad3_test_func_4_analytical(x, y);
+    auto                                     grad_ad = grad(f_ad, &x_ad, &y_ad);
+
+    std::vector<std::vector<std::vector<T>>> grad_tensor;
+    for (int i = 0; i < 2; i++) {
+        auto df_hess = hess(*grad_ad[i], &x_ad, &y_ad);
+        grad_tensor.push_back(df_hess);
+    }
+    auto grad_nd_func_test = grad_nd<3>(f_ad, &x_ad, &y_ad);
+    for (int i = 0; i < 2; i++) {
+        for (int j = 0; j < 2; j++) {
+            for (int k = 0; k < 2; k++) {
+                BOOST_REQUIRE_CLOSE(grad_tensor[i][j][k], df3[i][j][k], boost_close_tol<T>());
+                BOOST_REQUIRE_CLOSE(grad_nd_func_test[i][j][k], df3[i][j][k], boost_close_tol<T>());
+            }
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE_TEMPLATE(test_func_4_fourth_derivative, T, all_float_types)
+{
+    RandomSample<T> rng{-1, 1};
+
+    T               x_val = rng.next();
+    T               y_val = rng.next();
+
+    rvar<T, 4>      x_ad  = x_val;
+    rvar<T, 4>      y_ad  = y_val;
+    rvar<T, 4>      f_ad  = test_function_4(x_ad, y_ad);
+
+    auto            df4   = grad4_test_func_4_analytical(x_val, y_val);
+    auto            gf    = grad(f_ad, &x_ad, &y_ad);
+    std::array<std::array<std::array<std::array<T, 2>, 2>, 2>, 2> ggggf;
+    for (int i = 0; i < 2; ++i) {
+        auto hess1 = grad(*gf[i], &x_ad, &y_ad);
+        for (int j = 0; j < 2; ++j) {
+            auto hess2 = grad(*hess1[j], &x_ad, &y_ad);
+            for (int k = 0; k < 2; ++k) {
+                auto hess3 = grad(*hess2[k], &x_ad, &y_ad);
+                for (int l = 0; l < 2; ++l) {
+                    ggggf[i][j][k][l] = hess3[l];
+                }
+            }
+        }
+    }
+    auto grad_nd_func_test = grad_nd<4>(f_ad, &x_ad, &y_ad);
+    for (int i = 0; i < 2; i++) {
+        for (int j = 0; j < 2; j++) {
+            for (int k = 0; k < 2; k++) {
+                for (int l = 0; l < 2; l++) {
+                    if (abs(ggggf[i][j][k][l] - df4[i][j][k][l]) > boost_close_tol<T>()) {
+                        std::cout << i << j << k << l << std::endl;
+                    }
+                    BOOST_REQUIRE_CLOSE(ggggf[i][j][k][l], df4[i][j][k][l], boost_close_tol<T>());
+                    BOOST_REQUIRE_CLOSE(grad_nd_func_test[i][j][k][l],
+                                        df4[i][j][k][l],
+                                        boost_close_tol<T>());
+                }
+            }
+        }
+    }
+}
 BOOST_AUTO_TEST_SUITE_END()
